@@ -135,11 +135,6 @@ buttonMakePoster.addEventListener('click', function(event) {
   event.preventDefault();
 });
 
-savedPosterGrid.addEventListener('dblclick', function(event){
-  deleteSavedPoster();
-  event.target();
-});
-
 // functions and event handlers go here 👇
 // (we've provided one for you to get you started)!
 
@@ -212,28 +207,41 @@ function showSaved() {
   savedPosterGrid.innerHTML = ``;
 
   for(var i = 0; i < savedPosters.length; i++){
-    savedPosterGrid.innerHTML += `
-      <article class="mini-poster" id="${savedPosters[i].id}">
-        <img class="poster-img" src="${savedPosters[i].imageURL}" alt="nothin' to see here">
-        <h2 class="poster-title">${savedPosters[i].title}</h2>
-        <h4 class="poster-quote">${savedPosters[i].quote}</h4>
-      </article>
+    // create the poster element: <article class="mini-poster" id="..."></article>
+    var posterElement = document.createElement('article');
+    posterElement.classList.add('mini-poster');
+    posterElement.id = savedPosters[i].id;
+    posterElement.innerHTML = `
+      <img class="poster-img" src="${savedPosters[i].imageURL}" alt="nothin' to see here">
+      <h2 class="poster-title">${savedPosters[i].title}</h2>
+      <h4 class="poster-quote">${savedPosters[i].quote}</h4>
     `;
+    
+    // add the poster element to the grid so we can see it on the page
+    savedPosterGrid.appendChild(posterElement);
+
+    // add event listener so double clicking on a poster calls `deleteSavedPoster`
+    posterElement.addEventListener('dblclick', deleteSavedPoster);
   };
 };
 
-function deleteSavedPoster() {
-  var posterToBeDeleted = event.target.closest('.mini-poster');
-  
-  if (posterToBeDeleted !== null) {
-    for (var i = 0; i < savedPosters.length; i++) {
-      if (savedPosters[i].id == posterToBeDeleted.id) {       
-        savedPosters.splice(i, 1);
-      };
-    };
 
-    posterToBeDeleted.remove();
+function deleteSavedPoster(event) {
+  // event.currentTarget:
+  //   It always refers to the element to which the event handler has been attached, 
+  //   as opposed to `event.target`, which identifies the element on which the event occurred and which may be its descendant.
+  //   https://developer.mozilla.org/en-US/docs/Web/API/Event/currentTarget
+  var posterToBeDeleted = event.currentTarget;
+
+  // remove the poster in `savedPosters` that cooresponds to the poster element that was double clicked
+  for (var i = 0; i < savedPosters.length; i++) {
+    if (savedPosters[i].id == posterToBeDeleted.id) {
+      savedPosters.splice(i, 1);
+    };
   };
+
+  // finally, remove the actual poster element from the document
+  posterToBeDeleted.remove();
 };
 
 
